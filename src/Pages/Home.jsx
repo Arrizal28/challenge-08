@@ -14,9 +14,10 @@ import {
 } from "../redux/actions/movieActions";
 import "../style/landingPage.scss";
 
-function Home(token, setToken) {
+function Home() {
   const dispatch = useDispatch();
   const { movies, moviet } = useSelector((state) => state.movie);
+  const { token } = useSelector((state) => state.auth);
 
   const navigate = useNavigate();
   const settings = {

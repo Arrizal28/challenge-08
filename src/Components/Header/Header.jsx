@@ -2,39 +2,42 @@ import React, { useEffect, useState } from "react";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Header.scss";
 import { Button } from "react-bootstrap";
 import { Input, Form } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getAllSearch } from "../../redux/actions/searchActions";
+import { me, logout } from "../../redux/actions/authActions";
 
-function Header({ token, setToken, setMovies }) {
+function Header() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const dispatch = useDispatch();
 
+  const { token } = useSelector((state) => state.auth);
+
   useEffect(() => {
     (async () => {
       if (token) {
-        try {
-          await axios.get(`${process.env.REACT_APP_AUTH_API}/api/v1/auth/me`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-        } catch (error) {
-          if (error.response.status === 401) {
-            localStorage.removeItem("token");
-            setToken(null);
-            navigate.push("/");
-          }
-        }
+        // try {
+        //   await axios.get(`${process.env.REACT_APP_AUTH_API}/api/v1/auth/me`, {
+        //     headers: {
+        //       Authorization: `Bearer ${token}`,
+        //     },
+        //   });
+        // } catch (error) {
+        //   if (error.response.status === 401) {
+        //     localStorage.removeItem("token");
+        //     setToken(null);
+        //     navigate.push("/");
+        //   }
+        // }
+        dispatch(me(() => {}));
       }
     })();
-  }, [token, navigate, setToken]);
+  }, [token, navigate, dispatch]);
 
   const handleSearch = (e) => {
     setQuery(e.target.value);
@@ -48,8 +51,7 @@ function Header({ token, setToken, setMovies }) {
   const handleLogout = (e) => {
     e.preventDefault();
 
-    localStorage.removeItem("token");
-    setToken(null);
+    dispatch(logout());
   };
 
   return (

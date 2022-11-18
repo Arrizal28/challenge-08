@@ -1,26 +1,28 @@
 import { MailOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Input } from "antd";
 import "antd/dist/antd.min.css";
-import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import GoogleLogin from "../../Components/GoogleLogin/GoogleLogin";
 import "./Register.scss";
+import { useDispatch, useSelector } from "react-redux";
+import { register } from "../../redux/actions/authActions";
 
-const Register = ({ token, setToken }) => {
+const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { token } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    const getToken = localStorage.getItem("token");
-    setToken(getToken);
-    if (getToken) {
+    if (token) {
       navigate("/");
     }
-  }, [token, setToken, navigate]);
+  }, [token, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,18 +44,7 @@ const Register = ({ token, setToken }) => {
         email,
         password,
       };
-      try {
-        const result = await axios.post(
-          `${process.env.REACT_APP_AUTH_API}/api/v1/auth/register`,
-          data
-        );
-        if (result.data.token) {
-          localStorage.setItem("token", result.data.token);
-          setToken(result.data.token);
-        }
-      } catch (error) {
-        alert(error.response.data.message);
-      }
+      dispatch(register(data));
     }
   };
 
@@ -95,7 +86,7 @@ const Register = ({ token, setToken }) => {
               </div>
               <p>or connect with</p>
               <div>
-                <GoogleLogin setToken={setToken} label="Sing Up With Google" />
+                <GoogleLogin label="Sing Up With Google" />
               </div>
             </div>
           </div>

@@ -1,29 +1,27 @@
 import React, { useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { me } from "../../redux/actions/authActions";
 
 function Protected({ children }) {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const dispatch = useDispatch();
+
+  const { token } = useSelector((state) => state.auth);
 
   useEffect(() => {
     (async () => {
       if (token) {
-        try {
-          await axios.get(`${process.env.REACT_APP_AUTH_API}/api/v1/auth/me`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-        } catch (error) {
-          if (error.response.status === 401) {
-            localStorage.removeItem("token");
-            navigate("/login");
-          }
-        }
+        dispatch(
+          me((status) => {
+            if (status === 401) {
+              navigate("/login");
+            }
+          })
+        );
       }
     })();
-  }, [token, navigate]);
+  }, [token, navigate, dispatch]);
 
   if (!token) {
     return <Navigate to={`/login`} />;

@@ -1,25 +1,28 @@
 import { MailOutlined } from "@ant-design/icons";
 import { Button, Input } from "antd";
 import "antd/dist/antd.min.css";
-import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import GoogleLogin from "../../Components/GoogleLogin/GoogleLogin";
 import "./Login.scss";
+import { login } from "../../redux/actions/authActions";
+import { useDispatch, useSelector } from "react-redux";
 
-const Login = ({ token, setToken }) => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+
+  const { token } = useSelector((state) => state.auth);
+
   useEffect(() => {
-    const getToken = localStorage.getItem("token");
-    setToken(getToken);
-    if (getToken) {
+    if (token) {
       navigate("/");
     }
-  }, [token, setToken, navigate]);
+  }, [token, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,18 +39,7 @@ const Login = ({ token, setToken }) => {
         email,
         password,
       };
-      try {
-        const result = await axios.post(
-          `${process.env.REACT_APP_AUTH_API}/api/v1/auth/login`,
-          data
-        );
-        if (result.data.token) {
-          localStorage.setItem("token", result.data.token);
-          setToken(result.data.token);
-        }
-      } catch (error) {
-        alert(error.response.data.message);
-      }
+      dispatch(login(data));
     }
   };
 
@@ -80,7 +72,7 @@ const Login = ({ token, setToken }) => {
               </div>
               <p>or connect with</p>
               <div>
-                <GoogleLogin setToken={setToken} label="Sign In With Google" />
+                <GoogleLogin label="Sign In With Google" />
               </div>
             </div>
           </div>
